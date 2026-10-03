@@ -1,0 +1,17 @@
+# Build context'ga faqat build uchun kerakli fayllar tushadi — tezlik va xavfsizlik uchun.
+# .env* ataylab chiqarilgan: `next build` ularni o'qib bundle'ga yozib yuboradi.
+# Image uchun qiymatlar faqat CI build-arg orqali beriladi (Dockerfile: NEXT_PUBLIC_API_URL).
+.git
+.github
+.idea
+.vscode
+.next
+node_modules
+.env*
+docs
+Dockerfile
+.dockerignore
+docker-compose.yml
+*.md
+npm-debug.log*
+.DS_Store

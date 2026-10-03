@@ -1,0 +1,34 @@
+# UyPilus front — server stack (serverda: /opt/uypilus-front). Hozir DEV server (`dev` branch).
+# Backend'ning /opt/uypilus stack'idan alohida — bir-biriga tegmaydi.
+# CI/CD har deploy'da shu faylni va .env'ni (faqat APP_IMAGE) serverga yozadi — serverda qo'lda
+# tahrirlanmaydi, o'zgartirish repo orqali.
+#
+# Port faqat 127.0.0.1 da: tashqariga nginx (80) orqali chiqadi — `location /` -> 127.0.0.1:13022.
+#   Band portlar (backend): dashboard 13020, mobile 13021, postgres 5434, redis 6381.
+name: uypilus-front
+
+services:
+  web:
+    # zaxira qiymat yo'q: APP_IMAGE ni har deploy'da CI yozadi (aniq :<commit-sha>)
+    image: ${APP_IMAGE:?APP_IMAGE .env da yo'q (CI deploy yozadi)}
+    container_name: uypilus-front
+    restart: unless-stopped
+    mem_limit: 384m
+    mem_reservation: 64m
+    environment:
+      TZ: Asia/Tashkent
+    ports:
+      - '127.0.0.1:13022:3000'
+    healthcheck:
+      # app/api/health/route.ts
+      test: ['CMD', 'wget', '-q', '-O', '/dev/null', 'http://127.0.0.1:3000/api/health']
+      interval: 60s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+      start_interval: 2s
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: '3'

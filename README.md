@@ -1,36 +1,44 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# UyPilus — Front
 
-## Getting Started
-
-First, run the development server:
+Next.js 16 (App Router). Backend: [UyPlus-back](https://github.com/abdulazizkhazratkulov/UyPlus-back) (`/dashboard/v1`).
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev     # http://localhost:3000
+npm run lint
+npm run build   # .next/standalone — Docker image shundan yig'iladi
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Deploy
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Branch | Server | Deploy |
+| --- | --- | --- |
+| `dev` | DEV server — http://46.8.176.92/ | push → avtomatik |
+| `main` | PROD — keyinchalik, alohida server | hozircha yo'q |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+`dev` ga push → GitHub Actions: **build** (lint → `docker build` → image `ghcr.io/abdulazizkhazratkulov/uypilus-front:<sha>` + `:dev`)
+→ **deploy** (SSH: serverda `/opt/uypilus-front/.env` ga `APP_IMAGE` yoziladi → `docker compose pull && up -d --wait web`).
+Konteyner `127.0.0.1:13022` da, tashqariga nginx `location /` orqali chiqadi. `/dashboard/`, `/mobile/` — backend.
 
-## Learn More
+| Fayl | Vazifasi |
+| --- | --- |
+| `Dockerfile`, `.dockerignore` | Next.js standalone image (build image ichida, GitHub runner'da) |
+| `docker-compose.yml` | Server stack: `web` konteyneri |
+| `.github/workflows/deploy.yml` | CI/CD |
+| `app/api/health/route.ts` | Konteyner healthcheck'i |
 
-To learn more about Next.js, take a look at the following resources:
+Deploy buzilmasligi uchun:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- `next.config.ts` dagi `output: "standalone"` va `app/api/health/route.ts` qolishi shart.
+- `/dashboard/*` va `/mobile/*` yo'llari backend'niki (nginx) — front sahifalari bu prefikslarni ishlatmasin.
+- `NEXT_PUBLIC_*` build vaqtida bundle'ga yoziladi: yangisini qo'shsangiz `Dockerfile` (`ARG`/`ENV`)
+  va `deploy.yml` (`build-args`) ga ham qo'shing.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+GitHub: **Settings → Secrets and variables → Actions**:
 
-## Deploy on Vercel
+- **Secret:** `SERVER_SSH_KEY` — deploy kaliti (private key, base64)
+- **Variables:** `SERVER_HOST` (`46.8.176.92`), `SERVER_USER`
+- Ixtiyoriy variable: `SERVER_KNOWN_HOSTS` — server host kaliti (`ssh-keyscan -t ed25519 46.8.176.92`); bo'lmasa host tekshirilmaydi
+- Ixtiyoriy variable: `NEXT_PUBLIC_API_URL` — bo'sh bo'lsa API so'rovlari shu domenning o'ziga (`/dashboard/v1`)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Server sozlamasi (nginx `location /`) — `UyPlus-back` dagi `docs/SERVER.md` da (repo'da emas).
