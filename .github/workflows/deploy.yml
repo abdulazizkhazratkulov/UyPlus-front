@@ -3,7 +3,7 @@ name: Build & Deploy
 # `dev` ga push -> DEV server (46.8.176.92):
 #   1) build:  lint -> `docker build` (Next.js standalone, build Dockerfile ichida) ->
 #              image GHCR'ga (:<commit-sha> + :dev).
-#   2) deploy: /opt/uypilus-front/.env (faqat APP_IMAGE) QAYTA YOZILADI -> docker-compose.yml
+#   2) deploy: /opt/uypilus-front/.env (APP_IMAGE, APP_ENV) QAYTA YOZILADI -> docker-compose.yml
 #              ko'chiriladi -> `pull + up -d --wait web`. Tashqariga nginx `/` -> 127.0.0.1:13022.
 # Serverda build YO'Q. Backend (/opt/uypilus) stack'iga tegilmaydi.
 #
@@ -103,9 +103,11 @@ jobs:
           GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # ---- /opt/uypilus-front/.env ----
           APP_IMAGE: ${{ env.IMAGE }}:${{ github.sha }}
+          # Muhit nomi — konteyner nomida (docker-compose.yml): main -> prod, qolgani -> dev.
+          APP_ENV: ${{ github.ref_name == 'main' && 'prod' || 'dev' }}
         run: |
           set -euo pipefail
-          ENV_KEYS=(APP_IMAGE)
+          ENV_KEYS=(APP_IMAGE APP_ENV)
 
           # 1. Konfiguratsiya to'liqmi — serverga tegishdan OLDIN
           missing=()

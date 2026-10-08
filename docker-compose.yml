@@ -1,6 +1,6 @@
 # UyPilus front — server stack (serverda: /opt/uypilus-front). Hozir DEV server (`dev` branch).
 # Backend'ning /opt/uypilus stack'idan alohida — bir-biriga tegmaydi.
-# CI/CD har deploy'da shu faylni va .env'ni (faqat APP_IMAGE) serverga yozadi — serverda qo'lda
+# CI/CD har deploy'da shu faylni va .env'ni (APP_IMAGE, APP_ENV) serverga yozadi — serverda qo'lda
 # tahrirlanmaydi, o'zgartirish repo orqali.
 #
 # Port faqat 127.0.0.1 da: tashqariga nginx (80) orqali chiqadi — `location /` -> 127.0.0.1:13022.
@@ -11,7 +11,8 @@ services:
   web:
     # zaxira qiymat yo'q: APP_IMAGE ni har deploy'da CI yozadi (aniq :<commit-sha>)
     image: ${APP_IMAGE:?APP_IMAGE .env da yo'q (CI deploy yozadi)}
-    container_name: uypilus-front
+    # APP_ENV (dev | prod) — .env ga CI yozadi (branch bo'yicha): DEV'da uypilus-dev-front
+    container_name: uypilus-${APP_ENV:?APP_ENV .env da yo'q (CI deploy yozadi)}-front
     restart: unless-stopped
     mem_limit: 384m
     mem_reservation: 64m

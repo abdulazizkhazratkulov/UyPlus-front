@@ -17,7 +17,7 @@ npm run build   # .next/standalone — Docker image shundan yig'iladi
 | `main` | PROD — keyinchalik, alohida server | hozircha yo'q |
 
 `dev` ga push → GitHub Actions: **build** (lint → `docker build` → image `ghcr.io/abdulazizkhazratkulov/uypilus-front:<sha>` + `:dev`)
-→ **deploy** (SSH: serverda `/opt/uypilus-front/.env` ga `APP_IMAGE` yoziladi → `docker compose pull && up -d --wait web`).
+→ **deploy** (SSH: serverda `/opt/uypilus-front/.env` ga `APP_IMAGE`, `APP_ENV` yoziladi → `docker compose pull && up -d --wait web`).
 Konteyner `127.0.0.1:13022` da, tashqariga nginx `location /` orqali chiqadi. `/dashboard/`, `/mobile/` — backend.
 
 | Fayl | Vazifasi |
